@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scientific Calculator</title>
+  <style>
+    body {
+      background: #1e1e2f;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .calculator {
+      background: #2c2c3e;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+      width: 360px;
+    }
+`
+    .display {
+      background: #1e1e2f;
+      color: #fff;
+      font-size: 28px;
+      padding: 15px;
+      text-align: right;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      word-wrap: break-word;
+      min-height: 50px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      padding: 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background-color: #5a5a7a;
+    }
+
+    .operator {
+      background-color: #ff9800;
+    }
+
+    .operator:hover {
+      background-color: #e68a00;
+    }
+
+    .equals {
+      background-color: #28a745;
+    }
+
+    .equals:hover {
+      background-color: #218838;
+    }
+
+    .memory {
+      background-color: #17a2b8;
+    }
+
+    .memory:hover {
+      background-color: #138496;
+    }
+
+    .function {
+      background-color: #6f42c1;
+    }
+
+    .function:hover {
+      background-color: #5e3aa8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <!-- Memory -->
+      <button class="memory" onclick="memoryClear()">MC</button>
+      <button class="memory" onclick="memoryAdd()">M+</button>
+      <button class="memory" onclick="memorySubtract()">M-</button>
+      <button class="memory" onclick="memoryRecall()">MR</button>
+      <button class="memory" onclick="memoryStore()">MS</button>
+
+      <!-- Functions -->
+      <button class="function" onclick="append('Math.sin(')">sin</button>
+      <button class="function" onclick="append('Math.cos(')">cos</button>
+      <button class="function" onclick="append('Math.tan(')">tan</button>
+      <button class="function" onclick="append('Math.asin(')">sin⁻¹</button>
+      <button class="function" onclick="append('Math.acos(')">cos⁻¹</button>
+
+      <button class="function" onclick="append('Math.log10(')">log</button>
+      <button class="function" onclick="append('Math.log(')">ln</button>
+      <button class="function" onclick="append('Math.exp(')">exp</button>
+      <button class="function" onclick="append('Math.abs(')">abs</button>
+      <button class="function" onclick="factorial()">n!</button>
+
+      <!-- Numbers and Ops -->
+      <button onclick="append('(')">(</button>
+      <button onclick="append(')')">)</button>
+      <button onclick="clearDisplay()">C</button>
+      <button onclick="backspace()">←</button>
+      <button onclick="percentage()">%</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button class="operator" onclick="append('/')">÷</button>
+      <button class="function" onclick="append('Math.sqrt(')">√</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button class="operator" onclick="append('*')">×</button>
+      <button class="function" onclick="append('Math.pow(')">x^y</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button class="operator" onclick="append('-')">−</button>
+      <button class="function" onclick="append('Math.PI')">π</button>
+
+      <button onclick="append('0')">0</button>
+      <button onclick="append('.')">.</button>
+      <button class="operator" onclick="append('+')">+</button>
+      <button class="function" onclick="append('Math.E')">e</button>
+      <button class="equals" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    let display = document.getElementById('display');
+    let memory = 0;
+    let lastResult = 0;
+
+    function append(value) {
+      if (display.innerText === '0' && value !== '.') {
+        display.innerText = value;
+      } else {
+        display.innerText += value;
+      }
+    }
+
+    function clearDisplay() {
+      display.innerText = '0';
+    }
+
+    function backspace() {
+      if (display.innerText.length === 1 || display.innerText === 'Error') {
+        display.innerText = '0';
+      } else {
+        display.innerText = display.innerText.slice(0, -1);
+      }
+    }
+
+    function calculate() {
+      try {
+        // Replace × with *, ÷ with / before evaluation
+        let expression = display.innerText.replace(/×/g, '*').replace(/÷/g, '/');
+        let result = eval(expression);
+        
+        // Handle very large/small numbers with scientific notation
+        if (Math.abs(result) > 1e12 || (Math.abs(result) < 1e-6 && result !== 0)) {
+          result = result.toExponential(8);
+        } else {
+          // Round to 10 decimal places to avoid floating point precision issues
+          result = parseFloat(result.toFixed(10));
+        }
+        
+        lastResult = result;
+        display.innerText = result;
+      } catch (e) {
+        display.innerText = 'Error';
+      }
+    }
+
+    function memoryAdd() {
+      try {
+        memory += eval(display.innerText);
+      } catch {
+        memory = 0;
+      }
+    }
+
+    function memorySubtract() {
+      try {
+        memory -= eval(display.innerText);
+      } catch {
+        memory = 0;
+      }
+    }
+
+    function memoryStore() {
+      try {
+        memory = eval(display.innerText);
+      } catch {
+        memory = 0;
+      }
+    }
+
+    function memoryRecall() {
+      display.innerText = memory.toString();
+    }
+
+    function memoryClear() {
+      memory = 0;
+    }
+
+    function percentage() {
+      try {
+        let currentValue = eval(display.innerText);
+        display.innerText = (currentValue / 100).toString();
+      } catch {
+        display.innerText = 'Error';
+      }
+    }
+
+    function factorial() {
+      try {
+        let num = eval(display.innerText);
+        if (num < 0 || num % 1 !== 0) {
+          display.innerText = 'Error';
+          return;
+        }
+        let result = 1;
+        for (let i = 2; i <= num; i++) {
+          result *= i;
+        }
+        display.innerText = result.toString();
+      } catch {
+        display.innerText = 'Error';
+      }
+    }
+
+    // Keyboard support
+    document.addEventListener('keydown', function(event) {
+      const key = event.key;
+      
+      if (/[0-9]/.test(key)) {
+        append(key);
+      } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+        append(key);
+      } else if (key === '.') {
+        append('.');
+      } else if (key === 'Enter') {
+        calculate();
+      } else if (key === 'Escape') {
+        clearDisplay();
+      } else if (key === 'Backspace') {
+        backspace();
+      } else if (key === '(' || key === ')') {
+        append(key);
+      } else if (key === '%') {
+        percentage();
+      }
+    });
+  </script>
+
+</body>
+</html>
